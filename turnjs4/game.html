@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fresh vs Processed</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; padding: 16px; background: #f7f7f7; }
+    .wrap { max-width: 720px; margin: 0 auto; }
+.card {
+  background: #fff; border-radius: 14px; padding: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+    .top {
+      display: flex; gap: 12px; justify-content: space-between; align-items: center;
+      flex-wrap: wrap;
+    }
+    .pill {
+      background: #f0f0f0; border-radius: 999px; padding: 8px 12px; font-weight: 600;
+    }
+.imgBox {
+    margin-top: 8px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #eee;
+    display: grid;
+    place-items: center;
+    height: 280px;
+    align-content: center;
+    justify-content: center;
+    align-items: baseline;
+    justify-items: center;
+}
+    img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .prompt { margin-top: 12px; font-size: 16px; }
+    .btnRow {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .fresh { background: #e7f8ec; }
+    .proc { background: #fff1e6; }
+    .feedback {
+      margin-top: 12px;
+      min-height: 24px;
+      font-weight: 700;
+    }
+    .muted { color: #666; font-weight: 600; }
+    .footer {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .smallBtn {
+      background: #f0f0f0;
+      box-shadow: none;
+      font-weight: 700;
+      padding: 10px 12px;
+    }
+    .note { font-size: 13px; color: #666; line-height: 1.35; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card" role="application" aria-label="Fresh vs Processed Food game">
+    <div class="top">
+      <div class="pill" id="roundPill">Round 1 / 20</div>
+      <div class="pill" id="scorePill">Score: 0</div>
+    </div>
+
+    <div class="imgBox" aria-live="polite">
+      <img id="foodImg" alt="Food image" />
+    </div>
+
+    <div class="btnRow">
+      <button class="fresh" id="freshBtn" type="button">Fresh Food</button>
+      <button class="proc" id="procBtn" type="button">Processed Food</button>
+    </div>
+
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+
+    <div class="footer">
+      <button class="smallBtn" id="restartBtn" type="button">Restart</button>
+    </div>
+
+    <div id="endScreen" class="hidden" style="margin-top:16px;">
+      <div class="pill" style="display:inline-block;">Game Over</div>
+      <h2 style="margin:10px 0 6px;">Final score: <span id="finalScore">0</span> / 20</h2>
+      <p class="note" style="margin:0;">
+        Click Restart to play again.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- Data: 20 rounds ---
+  // Images are generated as simple inline SVGs so this file works offline and is easy to embed.
+  // To use real photos, set imageSrc to a URL (https://...) and keep the label.
+  const foods = [
+    { name: "Apple", label: "fresh", imageSrc: svgDataUri("Apple", "🍎") },
+    { name: "Banana", label: "fresh", imageSrc: svgDataUri("Banana", "🍌") },
+    { name: "Carrots", label: "fresh", imageSrc: svgDataUri("Carrots", "🥕") },
+    { name: "Broccoli", label: "fresh", imageSrc: svgDataUri("Broccoli", "🥦") },
+    { name: "Grapes", label: "fresh", imageSrc: svgDataUri("Grapes", "🍇") },
+    { name: "Orange", label: "fresh", imageSrc: svgDataUri("Orange", "🍊") },
+    { name: "Strawberries", label: "fresh", imageSrc: svgDataUri("Strawberries", "🍓") },
+    { name: "Fish", label: "fresh", imageSrc: svgDataUri("Fish", "🐟") },
+    { name: "Eggs", label: "fresh", imageSrc: svgDataUri("Eggs", "🥚") },
+    { name: "Milk", label: "fresh", imageSrc: svgDataUri("Milk", "🥛") },
+
+    { name: "Potato Chips", label: "processed", imageSrc: svgDataUri("Chips", "🍟") },
+    { name: "Soda", label: "processed", imageSrc: svgDataUri("Soda", "🥤") },
+    { name: "Candy", label: "processed", imageSrc: svgDataUri("Candy", "🍬") },
+    { name: "Instant Noodles", label: "processed", imageSrc: svgDataUri("Noodles", "🍜") },
+    { name: "Hot Dog", label: "processed", imageSrc: svgDataUri("Hot Dog", "🌭") },
+    { name: "Packaged Cookies", label: "processed", imageSrc: svgDataUri("Cookies", "🍪") },
+    { name: "Cereal", label: "processed", imageSrc: svgDataUri("Cereal", "🥣") },
+    { name: "Frozen Pizza", label: "processed", imageSrc: svgDataUri("Pizza", "🍕") },
+    { name: "Chicken Nuggets", label: "processed", imageSrc: svgDataUri("Nuggets", "🍗") },
+    { name: "Ice Cream", label: "processed", imageSrc: svgDataUri("Ice Cream", "🍨") },
+  ];
+
+  // --- Game state ---
+  const TOTAL_ROUNDS = 20;
+  let order = [];
+  let roundIndex = 0;
+  let score = 0;
+  let locked = false;
+
+  // --- Elements ---
+  const roundPill = document.getElementById("roundPill");
+  const scorePill = document.getElementById("scorePill");
+  const foodImg = document.getElementById("foodImg");
+  const foodName = document.getElementById("foodName");
+  const feedback = document.getElementById("feedback");
+  const freshBtn = document.getElementById("freshBtn");
+  const procBtn = document.getElementById("procBtn");
+  const restartBtn = document.getElementById("restartBtn");
+  const endScreen = document.getElementById("endScreen");
+  const finalScore = document.getElementById("finalScore");
+
+  // --- Helpers ---
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function setButtonsEnabled(enabled) {
+    freshBtn.disabled = !enabled;
+    procBtn.disabled = !enabled;
+  }
+
+  function updateTop() {
+    roundPill.textContent = `Round ${Math.min(roundIndex + 1, TOTAL_ROUNDS)} / ${TOTAL_ROUNDS}`;
+    scorePill.textContent = `Score: ${score}`;
+  }
+
+  function showRound() {
+    locked = false;
+    setButtonsEnabled(true);
+    feedback.textContent = "";
+
+    const idx = order[roundIndex];
+    const item = foods[idx];
+
+    foodImg.src = item.imageSrc;
+    foodImg.alt = item.name;
+    foodName.textContent = item.name;
+
+    updateTop();
+    endScreen.classList.add("hidden");
+  }
+
+  function endGame() {
+    setButtonsEnabled(false);
+    feedback.textContent = "";
+    endScreen.classList.remove("hidden");
+    finalScore.textContent = score.toString();
+    roundPill.textContent = `Round ${TOTAL_ROUNDS} / ${TOTAL_ROUNDS}`;
+  }
+
+  function handleAnswer(choice) {
+    if (locked) return;
+    locked = true;
+    setButtonsEnabled(false);
+
+    const idx = order[roundIndex];
+    const item = foods[idx];
+    const correct = (choice === item.label);
+
+    if (correct) {
+      score += 1;
+      feedback.textContent = "✅ Correct!";
+    } else {
+      feedback.textContent = `❌ Oops — that one is ${item.label === "fresh" ? "Fresh" : "Processed"}.`;
+    }
+
+    scorePill.textContent = `Score: ${score}`;
+
+    // Move to next round after a short pause
+    window.setTimeout(() => {
+      roundIndex += 1;
+      if (roundIndex >= TOTAL_ROUNDS) {
+        endGame();
+      } else {
+        showRound();
+      }
+    }, 650);
+  }
+
+  function restart() {
+    // Use exactly 20 rounds. If foods has 20 items, we can shuffle all of them.
+    order = shuffle([...Array(foods.length).keys()]).slice(0, TOTAL_ROUNDS);
+    roundIndex = 0;
+    score = 0;
+    updateTop();
+    showRound();
+  }
+
+  // --- Offline image generator (inline SVG) ---
+  function svgDataUri(title, emoji) {
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#f5f5f5"/>
+              <stop offset="100%" stop-color="#e9e9e9"/>
+            </linearGradient>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#g)"/>
+          <text x="50%" y="45%" text-anchor="middle" dominant-baseline="middle"
+                font-size="160">${escapeXml(emoji)}</text>
+          <text x="50%" y="70%" text-anchor="middle" dominant-baseline="middle"
+                font-size="54" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif"
+                fill="#333" font-weight="700">${escapeXml(title)}</text>
+        </svg>
+      `.trim();
+
+    const encoded = encodeURIComponent(svg)
+            .replace(/'/g, "%27")
+            .replace(/"/g, "%22");
+    return `data:image/svg+xml;charset=utf-8,${encoded}`;
+  }
+
+  function escapeXml(str) {
+    return String(str)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&apos;");
+  }
+
+  // --- Events ---
+  freshBtn.addEventListener("click", () => handleAnswer("fresh"));
+  procBtn.addEventListener("click", () => handleAnswer("processed"));
+  restartBtn.addEventListener("click", restart);
+
+  // Start
+  restart();
+</script>
+</body>
+</html>
