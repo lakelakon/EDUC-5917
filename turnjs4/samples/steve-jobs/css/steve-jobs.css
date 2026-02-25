@@ -164,48 +164,38 @@ body, ul, table, form{
 
 .sj-book .p1,
 .sj-book .p2,
-.sj-book .p3, 
-.sj-book .p111, 
-.sj-book .p112{
-	background-color:white;
-	background-image:url(../pics/book-covers.jpg) !important;
+.sj-book .p3,
+.sj-book .p30,
+.sj-book .p31,
+.sj-book .p32,{
+	background-color: white;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
 }
 
-.sj-book .p1{
-	background-position:0 0;
+.sj-book .p1 {
+	background-image: url('../pics/book-covers.png') !important;
 }
 
-.sj-book .p1 .side{
-	width:5px;
-	height:600px;
-	position:absolute;
-	top:0;
-	left:475px;
-
-	background:-webkit-gradient(linear, left top, left bottom, color-stop(0, #bbb), color-stop(0.5,  #ddd), color-stop(1,  #bbb));
-	background-image:-webkit-linear-gradient(left, #bbb, #ddd, #bbb);
-	background-image:-moz-linear-gradient(left, #bbb, #ddd, #bbb);
-	background-image:-ms-linear-gradient(left, #bbb, #ddd, #bbb);
-	background-image:-o-linear-gradient(left, #bbb, #ddd, #bbb);
-	background-image:linear-gradient(left, #bbb, #ddd, #bbb);
-	
-	-webkit-transform:rotateY(-90deg);
-	-moz-transform:rotateY(-90deg);
-	-o-transform:rotateY(-90deg);
-	-ms-transform:rotateY(-90deg);
-	transform:rotateY(-90deg);
-
-	-webkit-transform-origin:top right;
-	-moz-transform-origin:top right;
-	-o-transform-origin:top right;
-	-ms-transform-origin:top right;
-	transform-origin:top right;
-	z-index:100000;
-
+.sj-book .p2 {
+	background-image: url('../pics/page2.png') !important;
 }
 
-.sj-book-transform div[page="1"] > div, .sj-book-transform div[page="2"] > div{
-	overflow:visible !important;
+.sj-book .p3 {
+	background-image: url('../pics/page3.png') !important;
+}
+
+.sj-book .p30 {
+	background-image: url('../pics/page30.png') !important;
+}
+
+.sj-book .p31 {
+	background-image: url('../pics/page31.png') !important;
+}
+
+.sj-book .p32 {
+	background-image: url('../pics/back-cover.png') !important;
 }
 
 .sj-book .depth{
@@ -223,24 +213,7 @@ body, ul, table, form{
 
 .sj-book .back-side .depth{
 	right:4px;
-	background-position:right 0;
-}
-
-
-.sj-book .p2{
-	background-position:-480px 0 !important;
-}
-
-.sj-book .p3{
-	background-position:-1920px 0 !important;
-}
-
-.sj-book .p111{
-	background-position:-960px 0 !important;
-}
-
-.sj-book .p112{
-	background-position:-1440px 0 !important;
+	background-position:0 0;
 }
 
 .sj-book .hard{
